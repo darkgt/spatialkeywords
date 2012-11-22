@@ -103,13 +103,64 @@
 
 \section{PROCESSING TYPE2 SPATIAL GROUP KEYWORD QUERIES} \label{sec:type2}
 \subsection{Circle Limitation to Diameter} \label{secsub:type2:limitation}
+Recall the defination of \textsf{TYPE2} problem. The total cost is determined
+by two part, and the first part depends on the furthest object while
+the second part depends on all pairs of all feasible objects.
+For ease of presentaion, we set parameter $\alpha$ into 0
+to disregard the first part cost and discuss the difference
+in section ?? when considering this parameter.\par
+%
 For some given objects, it's possible to find a \textsf{Smallest Enclosing Circle}
 which covers all the objects and has the diameter as small as possible. A circle is
 helpful for us to make some limitation, because it's obvious that the distance of
 any two objects won't exceed the diameter of this smallest enclosing circle $D$.
 Therefore, a circle limitation is helpful for us to approach the exact result
 of \textsf{TYPE2} problem which is challenging to find the diameter of the keywords-covered
-objects.
+objects. In order to avoid the obscurity of two diameter defination, we call the
+diameter of the enclosing circle $D$ and the diameter of the inside objects $L$.\par
+%
+For known objects it's always possible to find such a circle limitaion,
+nevertheless, the problem in \textsf{TYPE2} is the inverse process which aims to
+select a subset of all objects with a circle limitaion and covers all the
+keywords as well.
+
+\begin{theorem}\label{thm:lambda}
+For a set of given points $P$ on the 2-dimensional plane,
+the diameter of $P$ is $L$ and the diameter of
+$P$'s smallest enclosing circle is $D$. If $|P|>1$ we have
+the limition relationship: 
+$ \frac{\sqrt{3}}{2} \cdot D\leq L \leq D$
+
+\proof
+Some proof here
+\end{theorem}
+
+The value of $\frac{\sqrt{3}}{2}$ will be mentional repeatedly,
+so we use $\lambda$ to substitute this constant.
+According to the above property, it's more clear if we
+have the inequality changed into: $L \leq D \leq \frac{L}{\lambda}$.
+This means if we find a circle with diameter $D$ and with
+feasible objects inside we can make sure that
+the result of diameter $L$ must be $[\lambda\cdot D,D]$
+without any calculation. Namely, the upperbound and lowerbound
+can be utilized to prune in the search space when even
+the best lowerbound value can't lead to a better solution.
+
+\begin{lemma}\label{lemma:monotone}
+The value of diameter $D$ corresponding to the best solution
+is monotonous. That is, if the circle covering the best solution
+with a diameter $D$ we can always find a bigger circle with
+diameter $D'(D' > D)$ that covers the best solution.
+
+\proof
+If set $S$ is the best solution of \textsf{TYPE2} problem,
+we could find it's smallest enclosing circle $C$ with a diameter $D$.
+The circle $C'$ with diameter $D'$ could fulfill the condition
+if put outside the circle $C$.
+\end{lemma}
+
+An obvious opinion according to \ref{lemma:monotone} is that
+we devote to find a circle which both covering all the query keywords 
 
 \subsection{Sweeping Circle} \label{secsub:type2:sweeping}
 
