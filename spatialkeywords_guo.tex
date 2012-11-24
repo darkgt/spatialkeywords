@@ -119,10 +119,19 @@ of \textsf{TYPE2} problem which is challenging to find the diameter of the keywo
 objects. In order to avoid the obscurity of two diameter defination, we call the
 diameter of the enclosing circle $D$ and the diameter of the inside objects $L$.\par
 %
+
 For known objects it's always possible to find such a circle limitaion,
 nevertheless, the problem in \textsf{TYPE2} is the inverse process which aims to
 select a subset of all objects with a circle limitaion and covers all the
-keywords as well.
+keywords as well. Figure~\ref{fig:1} shows an example of smallest enclosing circle.
+
+\begin{figure}\label{fig:1}
+\begin{center}
+\centering
+\includegraphics[width=2.5in]{figure/fig1}
+\caption{An example of Smallest Enclosing Circle with query \{A,B,C,D\}.}
+\end{center}
+\end{figure}
 
 \begin{theorem}\label{thm:lambda}
 For a set of given points $P$ on the 2-dimensional plane,
@@ -147,13 +156,13 @@ can be utilized to prune in the search space when even
 the best lowerbound value can't lead to a better solution.
 
 \begin{lemma}\label{lemma:monotone}
-The value of diameter $D$ corresponding to the best solution
-is monotonous. That is, if the circle covering the best solution
+The value of diameter $D$ corresponding to the optimal solution
+is monotonous. That is, if the circle covering the optimal solution
 with a diameter $D$ we can always find a bigger circle with
-diameter $D'(D' > D)$ that covers the best solution.
+diameter $D'(D' > D)$ that covers the optimal solution.
 
 \proof
-If set $S$ is the best solution of \textsf{TYPE2} problem,
+If set $S$ is the optimal solution of \textsf{TYPE2} problem,
 we could find it's smallest enclosing circle $C$ with a diameter $D$.
 The circle $C'$ with diameter $D'$ could fulfill the condition
 if put outside the circle $C$.
@@ -164,7 +173,7 @@ we devote to find a circle which both covering all the query keywords
 and with a diameter as small as possible. But according to
 Theorem~\ref{thm:lambda} the reverse process is not absolutely
 correct if we believe that the circle with the smallest diameter
-will cover the best feasible solution. We will discuss this problem
+will cover the optimal feasible solution. We will discuss this problem
 and show how to fix it in the next part.
 
 \subsection{Sweeping Circle} \label{secsub:type2:sweeping}
@@ -189,6 +198,13 @@ $C'$. Due to $D-\epsilon < D$, $C'$ is smaller than $C$ so $C$ is not
 the smallest enclosing circle.
 \end{lemma}
 
+\begin{figure}\label{fig:5}
+\begin{center}
+\includegraphics[width=1.5in]{figure/fig5}
+\caption{Sweeping Circle Method Schematic Diagram}
+\end{center}
+\end{figure}
+
 Now we can fix a point on the boundary of the circle based on Lemma~\ref{lemma:boundary}.
 There is also an $O(nlogn)$ algorithm to calculate the diameter of given points 
 which utilizes \textbf{Rotating Callipers in Convex Hull}. In the rotating callipers
@@ -199,36 +215,42 @@ diameter-determined circle rotated. If in a rotating angle all the objects insid
 this circle cover all the query keywords, we can make sure that at least one feasible solution
 exists among these objects. As we enumerate all the objects to be the fixed
 one, even for the best solution one object must be on the boundary of the sweeping circle
-according to Lemma~\ref{lemma:boundary}. Given the fixed object and a proper circle diameter $D$,
-the best solution must be cover by the sweeping circle at a specific angle.\par
+according to Lemma~\ref{lemma:boundary}. Figure~\ref{fig:5} reflects the sweeping circle method.
+Given the fixed object and a proper circle diameter $D$,
+the best solution must be cover by the sweeping circle at a specific angle.
 %
+
 The sweeping circle strategy is based on an assumption that the circle diameter $D$
 is given. Now let's discuss how to determine the value of $D$ to get the
-correct best results as well as avoiding useless enumeration with efficiency.
+correct optimal results as well as avoiding useless enumeration with efficiency.
+%
+
 First, the correctness must be guaranteed. As we have introduced before, a smaller
 diameter seems always better by intuition but whether the minimun diameter would 
-not miss the optimal objects and guarantee the best solution of value $L$?\par
+not miss the optimal objects and guarantee the minimun value $L$?
 %
+
 \begin{figure}\label{fig:2}
-\begin{minipage}[t]{0.5\linewidth}
-\centering
+\begin{center}
 \includegraphics[width=1.5in]{figure/fig2}
 \caption{Extreme case of diameter lower bound.}
-\end{minipage}
+\end{center}
 \end{figure}
 
 \begin{figure}\label{fig:3}
-\begin{minipage}[t]{0.5\linewidth}
+\begin{center}
 \centering
 \includegraphics[width=1.5in]{figure/fig3}
 \caption{Extreme case of diameter upper bound.}
-\end{minipage}
+\end{center}
 \end{figure}
 
 \begin{example}\label{ex:counter}
 Consider this situation as Figure~\ref{fig:2} and Figure~\ref{fig:3} shows:
-$L_1 = \lambda\cdot D_1$ and $L_2 = D_2$ which reflects two extreme cases
-of Theorem~\ref{thm:lambda}. But if $L_1 < L_2$ and $D_1 > D_2$, we get
+Figure~\ref{fig:2} shows the furthest objects pair is exactly the diameter
+of enclosing circle. Figure~\ref{fig:3} shows the three objects form an equilateral triangle.
+Here we have $L_1 = \lambda\cdot D_1$ and $L_2 = D_2$ which reflects two extreme cases
+of Theorem~\ref{thm:lambda} respectively. But if $L_1 < L_2$ and $D_1 > D_2$, we get
 $\lambda\cdot D_1 < D_2 < D_1$ which is totally rational.
 If we consider $D_2$ to be the lower bound to find the optimal solution,
 we would miss $L_1$ which is a better result.
@@ -249,8 +271,11 @@ and $L'$ be the second optimal one. We have $L \leq L'$.
 
 According to Theorem~\ref{thm:lambda}, $L\leq D \leq \frac{L}{\lambda}$
 where $D$ corresponds to the smallest enclosing circle.
+
 Some proof here~
 \end{lemma}
+
+
 
 \begin{algorithm}[!ht]\small\label{alg:binarysearch}
 \caption{ \bf {Framework of Binary Search} (objects,eps)}
@@ -277,7 +302,7 @@ $D \gets D/\lambda$\;
 \For{each object in objects}{
 	$circle\_scan(object,D,true)$\;
 }
-\Return $setList$\;\vspace{-1ex}
+\Return $D$\;\vspace{-1ex}
 
 \end{algorithm}
 
