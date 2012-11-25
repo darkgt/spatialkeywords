@@ -108,7 +108,7 @@ by two part, and the first part depends on the furthest object while
 the second part depends on all pairs of all feasible objects.
 For ease of presenting our method, we set parameter $\alpha$ into 0
 to disregard the first part cost and discuss the difference
-in section ?? when considering this parameter.\par
+in Section~\ref{sec:} when considering this parameter.\par
 %
 For some given objects, it's possible to find a \textsf{Smallest Enclosing Circle}
 which covers all the objects and has the diameter as small as possible. A circle is
@@ -197,9 +197,9 @@ $C'$. Due to $D-\epsilon < D$, $C'$ is smaller than $C$ so $C$ is not
 the smallest enclosing circle.
 \end{lemma}
 
-\begin{figure}\label{fig:5}
+\begin{figure}\label{fig:4}
 \begin{center}
-\includegraphics[width=1.5in]{figure/fig5}
+\includegraphics[width=2.5in]{figure/fig4}
 \caption{Sweeping Circle Method Schematic Diagram}
 \end{center}
 \end{figure}
@@ -214,7 +214,8 @@ diameter-determined circle rotated. If in a rotating angle all the objects insid
 this circle cover all the query keywords, we can make sure that at least one feasible solution
 exists among these objects. As we enumerate all the objects to be the fixed
 one, even for the best solution one object must be on the boundary of the sweeping circle
-according to Lemma~\ref{lemma:boundary}. Figure~\ref{fig:5} reflects the sweeping circle method.
+according to Lemma~\ref{lemma:boundary}. Figure~\ref{fig:4} reflects the sweeping circle method
+for query \{A,B,C,D\}.
 Given the fixed object and a proper circle diameter $D$,
 the best solution must be cover by the sweeping circle at a specific angle.
 %
@@ -296,7 +297,7 @@ we set the initial interval to be $(low, high)$ here $\infty$ can be set as a ve
 large value to ensure that the initial interval would not miss the optimal solution.
 In line 3-13, we perform a binary search framework iteratively approach the $minD$.
 We check the median value $D$ of current seach interval. By enumerating all the objects (line 6)
-and fixing this object as pivot we invoke the $circle\_scan\_no\_check()$ function
+and fixing this object as pivot we invoke the $circle\_scan()$ function
 to inspect whether a feasible solution exists with diameter $D$.
 If any feasible position is found we can ensure that $minD < D$, so in next iteration
 only consider the left interval $(low,D)$. Conversely, the right interval $(D,high)$
@@ -306,22 +307,22 @@ of current searching interval exceed $eps$ (line 3).
 
 When the $minD$ has been determined, we enlarge the value of $D$ by dividing $\lambda$
 (line 14) according to Lemma~\ref{lemma:enlarge} to ensure the correctness for the optimal
-solution. Then for each pivoit object we invoke $circle\_scan\_check()$ to perform
+solution. Then for each pivoit object we invoke $circle\_scan()$ to find specific positions and perform
 the exhuastive search to compute the concrete result, because the circle limitation strategy
 only points out the potential area but different combinations of objects may lead to
 different results. Actually, this is the original $TYPE2$ problem we want to sovle, but
 the number of objects has been greatly reduced.
 
-\textbf{Add an example here}
+%\textbf{Add an example here}
 
 In this binary seach framework
-we invoke two functions $circle\_scan\_no\_check()$ and $circle\_scan\_check()$.
+we invoke function $circle\_scan()$ twice with the third parameter different .
 Both of them perform the circle sweeping with an object as the pivot and rotate the
-circle to find a specific angle where all the objects inside the circle would
-cover all the keywords. For function $circle\_scan\_no\_check()$ we don't need to
+circle to find one or more specific angle where all the objects inside the circle would
+cover all the keywords. For the first invoking we don't need to
 know the concrete combination, because based on Theorem~\ref{thm:lambda} we have
 $L$ ranges in $[\lambda\cdot D, D]$.
-But for function $circle\_scan\_check()$, after a protential area has been found
+But for the second invoking, after a protential area has been found
 an exhausted search is invoked to compute exact result in this circle area.
 
 \begin{algorithm}[!ht]\small\label{alg:binarysearch}
@@ -333,7 +334,7 @@ $high \gets \infty$\;
 	$D \gets (high + low)/2$\;
 	$is\_any\_objects\_possible \gets false$\;
 	\For{each object in objects}{
-		\If{$circle\_scan\_no\_check(object,D)$}{
+		\If{$circle\_scan(object,D,false)$}{
 			$is\_any\_objects\_possible \gets true$\;
 			break\;
 		}
@@ -347,23 +348,42 @@ $high \gets \infty$\;
 }
 $D \gets D/\lambda$\;
 \For{each object in objects}{
-	$circle\_scan\_check(object,D)$\;
+	$circle\_scan(object,D,true)$\;
 }
 \Return $D$\;\vspace{-1ex}
 
 \end{algorithm}
 
-\begin{lemma}\label{lemma:2R}
+Let $object_i$ to be the fixed pivot and $D$ to be the sweeping circle diameter.
+If all other objects that in the circle with $2D$ as diameter and $object_i$ as
+the center can't cover all the query keywords, any feasible solution can't
+be found. It's a obvious pruning that showed in Figure~\ref{fig:5} where the
+bigger circle with $2D$ as diameter is the total sweeping area.
 
-\end{lemma}
+\begin{figure}\label{fig:5}
+\begin{center}
+\includegraphics[width=1.5in]{figure/fig5}
+\caption{Sweeping Area}
+\end{center}
+\end{figure}
 
+Then we introduce how to perform the function $circle_scan()$, that is, the circle
+sweeping process. For each object in the scan area, if we sweep the circle by $360$
+degree it will be covered by the circle once. Because each object is scaned
+ouside-in or inside-out by the circle exactly once. The shape of the circle is
+given and one pivot on the boundary is fixed, so for each $object_i$ it's possible
+to compute the specific angle $angle\_out_i$ when be scaned outside-in and the
+angle $angle\_in_i$ when be scaned inside-out. Actually, clockwise or
+counter-clockwise sweep makes no difference, so we might as well take the clockwise.
+For each object we have computered the two angles respectively, then sort all these angles. 
+We use minimum increment method to sweep the cirle, that is, for the current sweeping
+angle  we choose whether to sweep in a new object or sweep out an old
+object that coverd by current circle.
+Consider the case of Figure~\ref{fig:4} where the pivot with a keyword $A$.
+The object with keyword $D$ will be swept out, then we sweep in $BC$, sweep out $AD$ and
+finally sweep in $D$.
 
-
-
-
-
-
-
+\subsection{Improvement for TYPE2 probem} \label{secsub:improvement}
 
 
 
