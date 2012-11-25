@@ -127,7 +127,6 @@ keywords as well. Figure~\ref{fig:1} shows an example of smallest enclosing circ
 
 \begin{figure}\label{fig:1}
 \begin{center}
-\centering
 \includegraphics[width=2.5in]{figure/fig1}
 \caption{An example of Smallest Enclosing Circle with query \{A,B,C,D\}.}
 \end{center}
@@ -221,13 +220,25 @@ the best solution must be cover by the sweeping circle at a specific angle.
 %
 
 The sweeping circle strategy is based on an assumption that the circle diameter $D$
-is given. Now let's discuss how to determine the value of $D$ to get the
+is given. Now we discuss how to determine the value of $D$ to get the
 correct optimal results as well as avoiding useless enumeration with efficiency.
 %
 
 First, the correctness must be guaranteed. As we have introduced before, a smaller
-diameter seems always better by intuition but whether the minimun diameter would 
-not miss the optimal objects and guarantee the minimun value $L$?
+diameter seems always better by intuition but whether the minimum diameter would 
+not miss the optimal objects and guarantee the minimum value $L$?
+%
+
+\begin{example}\label{ex:counter}
+Consider this situation as Figure~\ref{fig:2} and Figure~\ref{fig:3} shows:
+Figure~\ref{fig:2} shows the furthest objects pair is exactly the diameter
+of enclosing circle. Figure~\ref{fig:3} shows the three objects form an equilateral triangle.
+Here we have $L_1 = \lambda\cdot D_1$ and $L_2 = D_2$ which reflects two extreme cases
+of Theorem~\ref{thm:lambda} respectively. But if $L_1 < L_2$ and $D_1 > D_2$, we get
+$\lambda\cdot D_1 < D_2 < D_1$ which is totally rational.
+If we consider $D_2$ to be the lower bound to find the optimal solution,
+we would miss $L_1$ which is a better result.
+\end{example}
 %
 
 \begin{figure}\label{fig:2}
@@ -245,19 +256,7 @@ not miss the optimal objects and guarantee the minimun value $L$?
 \end{center}
 \end{figure}
 
-\begin{example}\label{ex:counter}
-Consider this situation as Figure~\ref{fig:2} and Figure~\ref{fig:3} shows:
-Figure~\ref{fig:2} shows the furthest objects pair is exactly the diameter
-of enclosing circle. Figure~\ref{fig:3} shows the three objects form an equilateral triangle.
-Here we have $L_1 = \lambda\cdot D_1$ and $L_2 = D_2$ which reflects two extreme cases
-of Theorem~\ref{thm:lambda} respectively. But if $L_1 < L_2$ and $D_1 > D_2$, we get
-$\lambda\cdot D_1 < D_2 < D_1$ which is totally rational.
-If we consider $D_2$ to be the lower bound to find the optimal solution,
-we would miss $L_1$ which is a better result.
-\end{example}
-%
-
-Example~\ref{ex:counter} shows a counter-example of considering the minimun
+Example~\ref{ex:counter} shows a counter-example of considering the minimum
 of diameter $D$ would cover the optiaml solution.
 
 \begin{lemma}\label{lemma:enlarge}
@@ -275,7 +274,55 @@ where $D$ corresponds to the smallest enclosing circle.
 Some proof here~
 \end{lemma}
 
+Second, we have known the lower bound value of diameter $D$ that covers at least
+one feasible result could be utilized to ensure the correctness of
+covering optimal result. Now we consider to compute it more efficiently.
+The algorithm's idea is to perform a binary search to sovle this problem
+in $O(logn)$ time cost. 
+Based on Lemma~\ref{lemma:monotone}, the diameter $D$ is monotonous
+that corresponds to the optimal solution. Actually, it's obvious to come
+up with a same monotonous property to the feasible solution.
+Formally, 
+\begin{displaymath}
+minD = \min{fesD_i}
+\end{displaymath}
+where $fesD_i$ is the minimum circle diameter to ensure a feasible solution
+when we fix $object_i$ and perform the sweeping method. For a given diameter $D$,
+we utilize sweeping circle method with a fixed $object_i$ by enumeration. If $D<minD$
+we can't find any feasible solution, then we'll try a larger diameter.
 
+The pesudocodo is given in Algorithm~\ref{alg:binarysearch}. In lines 1-2,
+we set the initial interval to be $(low, high)$ here $\infty$ can be set as a very
+large value to ensure that the initial interval would not miss the optimal solution.
+In line 3-13, we perform a binary search framework iteratively approach the $minD$.
+We check the median value $D$ of current seach interval. By enumerating all the objects (line 6)
+and fixing this object as pivot we invoke the $circle\_scan\_no\_check()$ function
+to inspect whether a feasible solution exists with diameter $D$.
+If any feasible position is found we can ensure that $minD < D$, so in next iteration
+only consider the left interval $(low,D)$. Conversely, the right interval $(D,high)$
+needs to be searched. We set an $eps$ to restraint the binary search steps where
+$eps$ is a very small value. So the stoping criteria for the binary search is the length
+of current searching interval exceed $eps$ (line 3). 
+
+When the $minD$ has been determined, we enlarge the value of $D$ by dividing $\lambda$
+(line 14) according to Lemma~\ref{lemma:enlarge} to ensure the correctness for the optimal
+solution. Then for each pivoit object we invoke $circle\_scan\_check()$ to perform
+the exhuastive search to compute the concrete result, because the circle limitation strategy
+only points out the potential area but different combinations of objects may lead to
+different results. Actually, this is the original $TYPE2$ problem we want to sovle, but
+the number of objects has been greatly reduced.
+
+\textbf{Add an example here}
+
+In this binary seach framework
+we invoke two functions $circle\_scan\_no\_check()$ and $circle\_scan\_check()$.
+Both of them perform the circle sweeping with an object as the pivot and rotate the
+circle to find a specific angle where all the objects inside the circle would
+cover all the keywords. For function $circle\_scan\_no\_check()$ we don't need to
+know the concrete combination, because based on Theorem~\ref{thm:lambda} we have
+$L$ ranges in $[\lambda\cdot D, D]$.
+But for function $circle\_scan\_check()$, after a protential area has been found
+an exhausted search is invoked to compute exact result in this circle area.
 
 \begin{algorithm}[!ht]\small\label{alg:binarysearch}
 \caption{ \bf {Framework of Binary Search} (objects,eps)}
@@ -286,7 +333,7 @@ $high \gets \infty$\;
 	$D \gets (high + low)/2$\;
 	$is\_any\_objects\_possible \gets false$\;
 	\For{each object in objects}{
-		\If{$circle\_scan(object,D,false)$}{
+		\If{$circle\_scan\_no\_check(object,D)$}{
 			$is\_any\_objects\_possible \gets true$\;
 			break\;
 		}
@@ -300,12 +347,15 @@ $high \gets \infty$\;
 }
 $D \gets D/\lambda$\;
 \For{each object in objects}{
-	$circle\_scan(object,D,true)$\;
+	$circle\_scan\_check(object,D)$\;
 }
 \Return $D$\;\vspace{-1ex}
 
 \end{algorithm}
 
+\begin{lemma}\label{lemma:2R}
+
+\end{lemma}
 
 
 
