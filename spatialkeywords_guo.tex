@@ -107,8 +107,8 @@ Recall the defination of \textsf{TYPE2} problem. The total cost is determined
 by two part, and the first part depends on the furthest object while
 the second part depends on all pairs of all feasible objects.
 For ease of presenting our method, we set parameter $\alpha$ into 0
-to disregard the first part cost and discuss the difference
-in Section~\ref{sec:} when considering this parameter.\par
+to disregard the first part cost and discuss the difference and how to adjust the
+algorithm when considering this parameter.\par
 %
 For some given objects, it's possible to find a \textsf{Smallest Enclosing Circle}
 which covers all the objects and has the diameter as small as possible. A circle is
@@ -367,7 +367,7 @@ bigger circle with $2D$ as diameter is the total sweeping area.
 \end{center}
 \end{figure}
 
-Then we introduce how to perform the function $circle_scan()$, that is, the circle
+Then we introduce how to perform the function $circle\_scan()$, that is, the circle
 sweeping process. For each object in the scan area, if we sweep the circle by $360$
 degree it will be covered by the circle once. Because each object is scaned
 ouside-in or inside-out by the circle exactly once. The shape of the circle is
@@ -379,17 +379,65 @@ For each object we have computered the two angles respectively, then sort all th
 We use minimum increment method to sweep the cirle, that is, for the current sweeping
 angle  we choose whether to sweep in a new object or sweep out an old
 object that coverd by current circle.
-Consider the case of Figure~\ref{fig:4} where the pivot with a keyword $A$.
-The object with keyword $D$ will be swept out, then we sweep in $BC$, sweep out $AD$ and
-finally sweep in $D$.
 
-\subsection{Improvement for TYPE2 probem} \label{secsub:improvement}
+\begin{figure}\label{fig:7}
+\begin{center}
+\includegraphics[width=2.5in]{figure/fig7}
+\caption{Circle Scan with Minimum Incrememt}
+\end{center}
+\end{figure}
 
+Figure~\ref{fig:7} shows the minimum incrememt sweeping of the case in Figure~\ref{fig:4}.
+We map the position where an object swept out of the circle and the position where
+an object swept into the circle to polar angles of red and blue color respectively.
+In each step we only move the polar angle to the next position with minimum increment,
+either cover a new object into the circle or pop-up the last object out of the circle.
+The polar angles need to be sorted initially and be scanned one by one. 
+Sorting these angles costs $O(nlogn)$ and the $angle\_in$ and $angle\_out$ are exactly
+scanned once during the sweeping which costs $O(n)$, so the time complexity for a circle sweeping is $O(nlogn)$.
 
+The \textbf{TYPE2} problem is made up of two parts, and we have disregarded the
+first part. When consider the distance between the furthest object and the query location,
+we need to adjust the algorithm to fit the differences. The furthest object to the
+query actually is on the boundary of the circle, so when we enumerate which object
+to be the rotating pivot we can treat this object to be the furthest object. So all
+the other objects swept should be nearer than the pivot. When we perform the binary search
+we also consider the distance between the pivot and the query location.
 
+\begin{algorithm}[!ht]\small\label{alg:binarysearch2}
+\caption{ \bf {Framework of Binary Search for TYPE2 problem} (objects,q,eps)}
 
+$low \gets 0$\;
+$high \gets \infty$\;
+\While{$high - low > eps$}{
+	$totcost \gets (high + low)/2$\;
+	$is\_any\_objects\_possible \gets false$\;
+	\For{each object in objects}{
+		$D \gets totcost-Dist(object,q)$\;
+		\If{$circle\_scan(object,D,false)$}{
+			$is\_any\_objects\_possible \gets true$\;
+			break\;
+		}
+	}
 
+	\eIf{$is\_all\_objects\_possible$}{
+		$high \gets totcost$\;
+	}{
+		$low \gets totcost$\;
+	}
+}
+\For{each object in objects}{
+	$D \gets totcost-Dist(object,q)$\;
+	$circle\_scan(object,D/\lambda,true)$\;
+}
+\Return $totcost$\;\vspace{-1ex}
 
+\end{algorithm}
+
+The presudocode is described in Algorithm~\ref{alg:binarysearch2}. One of the differences
+is we utilize binary search for $totcost$ instead of $D$ which is the sum of $D$ and $Dist(object,q)$ (line 7-8).
+Another difference is when the lower bound of $totcost$ has been found we enlarge the diameter by dividing $\lambda$ (line 17)
+but not the $totcost$.
 
 
 \end{document}
