@@ -310,7 +310,7 @@ When the $minD$ has been determined, we enlarge the value of $D$ by dividing $\l
 solution. Then for each pivoit object we invoke $circle\_scan()$ to find specific positions and perform
 the exhuastive search to compute the concrete result, because the circle limitation strategy
 only points out the potential area but different combinations of objects may lead to
-different results. Actually, this is the original $TYPE2$ problem we want to sovle, but
+different results. Actually, this is the original \textsf{TYPE2} problem we want to sovle, but
 the number of objects has been greatly reduced.
 
 %\textbf{Add an example here}
@@ -322,7 +322,7 @@ circle to find one or more specific angle where all the objects inside the circl
 cover all the keywords. For the first invoking we don't need to
 know the concrete combination, because based on Theorem~\ref{thm:lambda} we have
 $L$ ranges in $[\lambda\cdot D, D]$.
-But for the second invoking, after a protential area has been found
+But for the second invoking, after a potential area has been found
 an exhausted search is invoked to compute exact result in this circle area.
 
 \begin{algorithm}[!ht]\small\label{alg:binarysearch}
@@ -396,7 +396,7 @@ The polar angles need to be sorted initially and be scanned one by one.
 Sorting these angles costs $O(nlogn)$ and the $angle\_in$ and $angle\_out$ are exactly
 scanned once during the sweeping which costs $O(n)$, so the time complexity for a circle sweeping is $O(nlogn)$.
 
-The \textbf{TYPE2} problem is made up of two parts, and we have disregarded the
+The \textsf{TYPE2} problem is made up of two parts, and we have disregarded the
 first part. When consider the distance between the furthest object and the query location,
 we need to adjust the algorithm to fit the differences. The furthest object to the
 query actually is on the boundary of the circle, so when we enumerate which object
@@ -435,13 +435,101 @@ $high \gets \infty$\;
 \end{algorithm}
 
 The presudocode is described in Algorithm~\ref{alg:binarysearch2}. One of the differences
-is we utilize binary search for $totcost$ instead of $D$ which is the sum of $D$ and $Dist(object,q)$ (line 7-8).
+is we utilize binary search for $totcost$ instead of $D$ which is the sum of $D$ and $Dist(object,q)$ (lines 7-8).
 Another difference is when the lower bound of $totcost$ has been found we enlarge the diameter by dividing $\lambda$ (line 17)
 but not the $totcost$.
 
+\subsection{Local Search in Potential Area}\label{subsec:search}
 When we have found several circle positions that covers all the query keywords during the sweeping,
 a exhuastive search is invoked to compute the combination of objects. If the number of objects
 is too large the time cost increases exponentially. To facilitate more efficient checking,
-we use two pruning strategies. Suppose $bestCost$ is the optimal result for all 
+we use pruning strategies. Suppose $bestCost$ is the optimal result for \textsf{TYPE2} problem,
+the value of $bestCost$ is updated during the exhuastiver search. 
+A brute force search method is to append a new object to the current selected object set and
+perform the search iteratively.
+This new object must cover a new keyword which has not been covered by the selected set.
+The deepest level of this depth-first-search is at most the number of keywords because each object
+contains at least one new keyword.
+Let $selectedCost$ be the furthest distance of any selected object pair and
+$furthestDist$ to be the distance between the pivot and query location, the goal is to
+make $selectedCost+furthestDist<bestCost$ and update $bestCost$ while covering all query keywords.
+%
+
+\textbf{Batched Selection}: If one candidate object covers new keywords whose distance to all other keywords doesn't exceed
+$selectedCost$ this object can be appended to the selected set arbitrarily, because whether we select
+this object or not would not expand $selectedCost$ which could be a better solution.
+
+\textbf{A* Based Search}: In each iteration, a new object may be selected and
+appended to the current selected set. The A* based search selects the object which
+makes the minimum increment to the $selectedCost$. We first compute all the increment
+for each candidate respectively. Then try to select an object to perform the next
+iteration by the $selectedCost$ increment. It's easy to be realized by using a heap or
+sort the increments.
+
+\textbf{Distance Pruning}: If we perform the search iteration by $selectedCost$ increment,
+it's possible to utilize a distance pruning. That is, an object $object_i$ is added
+to the current set and $selectedCost$ has been updated. If
+$selectedCost+furthestDist>bestCost$ it's impossible to get a better solution. The
+search iterartion stops for $object_i$ and all the else candidate, because the candidate
+after $object_i$ makes a worse cost.
+
+\begin{algorithm}[!ht]\small\label{alg:search}
+\caption{ \bf {Local Search in Protential Area} (selectedSet,candidateSet,selectCost,furthestDist,mask)}
+
+$n\gets |q.\psi|$\;
+$keywordsBM \gets 2^n-1$\;
+
+\If{mask == keywordsBM}{
+	\If{selectCost+furthestDist<bestCost}{
+		$bestCost \gets selectCost+furthestDist$\;
+		$resultSet \gets selectedSet$\;
+	}
+	\Return $bestCost$\;
+}
+\If{$selectCost+furthestDist>bestCost$}{
+	\Return $bestCost$\;
+}
+$candidateList\gets \emptyset$\;
+\For{each i in candidateSet}{
+	\If{$ (object[i].mask \& (keywordsBM $\^{}$ mask) ) = 0 $}{
+		{\bf continue}\;
+	}
+	$increment \gets 0$\;
+	\For{each j in selectedSet}{
+		$distance \gets Dist(object[i],object[j])$\;
+		\If{distance > increment}{
+			$increment\gets distance$\;
+		}
+	}
+	$candidate.inc\gets increment$\;
+	$candidate.id\gets i$\;
+	$candidateList\gets candidateList + candidate$\;
+	sort $candidateList$\;
+	\For{candidate in candidateList}{
+		\If{candidate.inc<selectedCost}{
+			$selectedSet.insert(candidate.id)$\;
+			$mask\gets mask|object[candidate.id].mask)$\;
+		}
+		\Else{
+			{\bf break}\;
+		}
+	}
+	\For{candidate in candidateList}{
+		$selectedSet.insert(candidate.id)$\;
+		\If{candidate.inc<bestdist}{
+			$localSearch(selectedSet,candidateSet,$\
+			$max(selectedCost,candidate.inc),furthestDist,$\
+			$mask|object[candidate.id].mask)$\;
+		}
+		$selectedSet.erase(candidate.id)$\;
+	}
+}
+
+\end{algorithm}
+
+The presudocode is described in Algorithm~\ref{alg:search}.
+In lines 23-28 we show the batched selection. In lines 8-9 and 31 we 
+show the distance prunning.
+
 
 \end{document}
