@@ -439,5 +439,9 @@ is we utilize binary search for $totcost$ instead of $D$ which is the sum of $D$
 Another difference is when the lower bound of $totcost$ has been found we enlarge the diameter by dividing $\lambda$ (line 17)
 but not the $totcost$.
 
+When we have found several circle positions that covers all the query keywords during the sweeping,
+a exhuastive search is invoked to compute the combination of objects. If the number of objects
+is too large the time cost increases exponentially. To facilitate more efficient checking,
+we use two pruning strategies. Suppose $bestCost$ is the optimal result for all 
 
 \end{document}
