@@ -106,8 +106,8 @@
 We note that the optimal solution of \textsf{TYPE2} problem can be limited
 in an area. To be specific, a circle area is reasonable because the distance
 of any two objects in a circle area doesn't exceed the diameter of the circle
-which corresponds to the defination of \textsf{TYPE2} problem. When such circle
-areas is determined the number of candidate objects can be greatly decreased
+which corresponds to the second partial defination of \textsf{TYPE2} problem. 
+When such circle areas is determined the number of candidate objects can be greatly decreased
 which will lead to a reduced search space for further searching in these potential areas.
 %
 
@@ -121,6 +121,7 @@ In Subsection~\ref{secsub:type2:limitation} we introduce the relationship
 between the diameter of enclosing circle and the range of potential solution's cost.
 %
 
+To define the circle area, the diameter and position of the enclosing circle are decisive.
 We note that the smaller the enclosing circle is, the more objects decreased.
 In Subsection~\ref{secsub:type2:sweeping},
 we prove the lowerbound of the diameter to cover the optimal soluton. We utilize
@@ -128,7 +129,6 @@ a binary search to determine the lowerbound with both correctness and efficiency
 In addition to the diameter, the position is also needed to determine the circle area
 where we introduce a sweeping method with minimum increment.
 %
-
 
 \subsection{Circle Range Limitation} \label{secsub:type2:limitation}
 Recall the defination of \textsf{TYPE2} problem. The total cost is determined
