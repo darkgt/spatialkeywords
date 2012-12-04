@@ -139,10 +139,17 @@ to approximate the optimal solution with fewer iteration.
 Recall the defination of \textsf{TYPE2} problem. The total cost is determined
 by two parts where the first part depends on the furthest object while
 the second part depends on all pairs of feasible objects.
-For ease of presenting our method, we set parameter $\alpha$ into 0
-to disregard the first part cost and discuss the difference and how to adjust the
-algorithm when considering this parameter.\par
+For ease of presenting our algorithm, we first consider a special case that
+parameter $\alpha$ equals 0 disregarding the first part cost.
+As the final algorithm for \textsf{TYPE2} problem is a derivatization
+of the simplified problem, the algorithm framework remains similar
+while some details vary. To avoid being confused by the complicated details
+and to make the algorithm clean and comprehensible,
+we first introduce how to solve the simplified problem.
+Then we express how to generalize the algorithm to solve the original
+problem when parameter $\alpha$ considered.
 %
+
 For some given objects, it's possible to find a \textsf{Smallest Enclosing Circle}
 which covers all the objects and has the diameter as small as possible. A circle is
 helpful for us to make some limitation, because it's obvious that the distance of
