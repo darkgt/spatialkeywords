@@ -102,7 +102,7 @@
 
 
 \section{PROCESSING TYPE2 SPATIAL GROUP KEYWORD QUERIES} \label{sec:type2}
-\subsection{Outline of Our Solutions}\label{secsub:type2:outline}
+\subsection{Outline of Our Solutions}\label{subsec:type2:outline}
 We note that the optimal solution of \textsf{TYPE2} problem can be limited
 in an area. To be specific, a circle area is reasonable because the distance
 of any two objects in a circle area doesn't exceed the diameter of the circle
@@ -117,22 +117,27 @@ which has been perfectly solved.
 The idea of our method is the inverse procedure of constructing smallest enclosing circle,
 that is, given the "approximate" enclosing circle we believe that the optimal
 solution must be covered by this circle.
-In Subsection~\ref{secsub:type2:limitation} we introduce the relationship
+In Subsection~\ref{subsec:type2:limitation} we introduce the relationship
 between the diameter of enclosing circle and the range of potential solution's cost.
 %
 
 To define the circle area, the diameter and position of the enclosing circle are decisive.
 We note that the smaller the enclosing circle is, the more objects decreased.
-In Subsection~\ref{secsub:type2:sweeping},
+In Subsection~\ref{subsec:type2:sweeping},
 we prove the lowerbound of the diameter to cover the optimal soluton. We utilize
 a binary search to determine the lowerbound with both correctness and efficiency.
 In addition to the diameter, the position is also needed to determine the circle area
 where we introduce a sweeping method with minimum increment.
 %
 
-\subsection{Circle Range Limitation} \label{secsub:type2:limitation}
+When potential circle areas have been determined, an exhaustive search is needed
+to get the optimal combination of objects. In Subsection~\ref{subsec:type2:search}
+we introduce an A-star based search with distance pruning and batched selection
+to approximate the optimal solution with fewer iteration.
+
+\subsection{Circle Range Limitation} \label{subsec:type2:limitation}
 Recall the defination of \textsf{TYPE2} problem. The total cost is determined
-by two parts, and the first part depends on the furthest object while
+by two parts where the first part depends on the furthest object while
 the second part depends on all pairs of feasible objects.
 For ease of presenting our method, we set parameter $\alpha$ into 0
 to disregard the first part cost and discuss the difference and how to adjust the
@@ -144,7 +149,7 @@ helpful for us to make some limitation, because it's obvious that the distance o
 any two objects won't exceed the diameter of this smallest enclosing circle $D$.
 Therefore, a circle limitation is helpful for us to approach the exact result
 of \textsf{TYPE2} problem which is challenging to find the diameter of the keywords-covered
-objects. In order to avoid the obscurity of two diameter defination, we call the
+objects. In order to avoid the obscurity of two diameter defination, we identify the
 diameter of the enclosing circle $D$ and the diameter of the inside objects $L$.\par
 %
 
@@ -203,7 +208,7 @@ correct if we believe that the circle with the smallest diameter
 will cover the optimal feasible solution. We will discuss this problem
 and show how to fix it in the next part.
 
-\subsection{Sweeping Circle} \label{secsub:type2:sweeping}
+\subsection{Sweeping Circle} \label{subsec:type2:sweeping}
 We just showed that a circle would help us to limit the objects
 in some specific area. It's still challenging to find a concrete
 position of the circle. We know that three points on the 2-dimensional plane
@@ -467,7 +472,7 @@ is we utilize binary search for $totcost$ instead of $D$ which is the sum of $D$
 Another difference is when the lower bound of $totcost$ has been found we enlarge the diameter by dividing $\lambda$ (line 17)
 but not the $totcost$.
 
-\subsection{Local Search in Potential Area}\label{subsec:search}
+\subsection{Local Search in Potential Area}\label{subsec:type2:search}
 When we have found several circle positions that covers all the query keywords during the sweeping,
 an exhuastive search is invoked to compute the combination of objects. If the number of objects
 is too large the time cost increases exponentially. To facilitate more efficient checking,
