@@ -1,1 +1,1 @@
-oppressive paper
+Oppressive Paper
