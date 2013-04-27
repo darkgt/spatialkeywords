@@ -531,12 +531,36 @@ In line 6, each object is added to the candidateSet one by one to make sure that
 the last added object must be the furthest to the query location.
 The selectedSet initially contains only $pivot$ and the furthest object we choosed,
 so the distance and textual value are initialized respectively (Line 7-9).
-Finally, when the $candiadateSet$ could cover all query keywords
+Finally, when the $candidateSet$ could cover all query keywords
 we call the function $localSearch()$ to search the optimal solution
 iteratively(Line 10-11).
 
+\textbf{Distance Pruning} When the first \textsf{MAX} is fixed, the cost of any
+feasible solution is only related to the second \textsf{MAX}. We use a pruning strategy
+based on this property: if an object added to the selected object set whose cost
+is larger than the $curCost$ then the search process can be terminated. This strategy
+reduces the search space because some objects can be removed from the candidate set for
+any further search step.
+
+\textbf{Keywords Pruning} A new object is added to the selected object set in each search
+step, so the $|selectedSet.\psi|$ would increase until it covers all the query keywords.
+According to this property, we use a keywords pruning strategy that an object $o$ can be pruned
+iff $o.\psi \subset selectedSet.\psi$. This approach implies an object can be removed from
+the candidate set if it would not contribute any new keyword.
+
+\textbf{Terminate Condition} The size of candidate set decreases based on the two pruning strategies. 
+We utilize the textual information again to decide whether the search can be terminated. The stop condition
+is iff $selectedSet.\psi \cup candidateSet.\psi != query.\psi$. This approach implies that even
+we selcet all the left objects a feasible solution can not be guaranteed, so the further search is meaningless.
+
+\textbf{Permutation Order} We notice that a set may be enumerated repeatly because different permutations order exist.
+For example ${o_1, o_2, o_3}$ can be generated in another order ${o_3, o_1, o_2}$. The number of ways a set
+can be generated is factorial, so a lot of time is wasted. In our approach, the set is generated uniquely
+if the id of each object in ascending order. To be more specific, a candidate object $o$ can be added to the
+selected set iff $o.id>\max_{s\in selectedSet}{s.id}$.
+
 \begin{algorithm}[!ht]\small\label{alg:localSearch}
-\caption{\bf{localSearch} (selectedSet, candiadateSet, pairDist, furthestDist, keywords, startId)}
+\caption{\bf{localSearch} (selectedSet, candidateSet, pairDist, furthestDist, keywords, startId)}
 \If{$keywords = query.\psi$}{
 	\If{$furthestDist + pairDist < curCost$}{
 		$curCost\gets furthestDist + pairDist$\;
@@ -549,22 +573,22 @@ iteratively(Line 10-11).
 }
 $nextSet\gets \emptyset$\;
 $leftKeyowrds\gets \emptyset$\;
-\For{each candiadate in candiadateSet}{
-	\If{$ (query.\psi - keywords) \cap candiadate.\psi = \emptyset $}{
+\For{each candidate in candidateSet}{
+	\If{$ (query.\psi - keywords) \cap candidate.\psi = \emptyset $}{
 		\textbf{continue}\;
 	}
-	\If{$candiadate.Id<startId$}{
+	\If{$candidate.Id<startId$}{
 		\textbf{continue}\;
 	}
-	$candiadate.dist\gets 0$\;
+	$candidate.dist\gets 0$\;
 	\For{each selectedObject in selectedSet}{
-		$candiadate.dist=max(candiadate.dist, \textsf{Dist}(selectedObject, candiadate))$\;
+		$candidate.dist=max(candidate.dist, \textsf{Dist}(selectedObject, candidate))$\;
 	}
-	\If{$candiadate.dist+furthestDist>curCost$}{
+	\If{$candidate.dist+furthestDist>curCost$}{
 		\textbf{continue}\;
 	}
-	$nextSet\gets nextSet+candiadate$\;
-	$leftKeywords\gets leftKeywords+candiadate.\psi$\;
+	$nextSet\gets nextSet+candidate$\;
+	$leftKeywords\gets leftKeywords+candidate.\psi$\;
 }
 
 \If{$leftKeywords\cup keywords != query.\psi$}{
@@ -573,7 +597,7 @@ $leftKeyowrds\gets \emptyset$\;
 
 \For{each object in nextSet}{
 	$selectedSet\gets selectedSet\cup object$\;
-	$localSearch(selectedSet, nextSet, max(pairDist,candiadate.dist),furthestDist, keywords\cup object.\psi, object.Id)$\;
+	$localSearch(selectedSet, nextSet, max(pairDist,candidate.dist),furthestDist, keywords\cup object.\psi, object.Id)$\;
 	$selectedSet\gets selectedSet - object$\;
 }
 \end{algorithm}
