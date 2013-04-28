@@ -2,6 +2,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{times}
+\usepackage{color}
 
 \usepackage{enumerate}
 \usepackage{subfigure}
@@ -601,4 +602,10 @@ $leftKeyowrds\gets \emptyset$\;
 	$selectedSet\gets selectedSet - object$\;
 }
 \end{algorithm}
+The presudocode is described in Algorithm~\ref{alg:localSearch}. Lines 15-19 show the distance pruning strategy
+that the object is removed from the candidate set if it would lead to a worse cost than $curCost$. Lines 11-12
+show the keywords pruning strategy. The object id is strictly in ascending order to avoid repeat set generated
+(Lines 13-14). The keywords of candidate objects are unioned to check whether the current search process fulfills
+\textsf{Terminate Condition} (Lines 9, 21-23).
+
 \end{document}
